@@ -69,6 +69,29 @@ export default function DiscordStatus({ discordId }) {
           console.error('JAPI fetch error:', japiErr);
         }
 
+        // Robust fallback to Vendicated's API if JAPI lookup fails or is rate-limited
+        if (!japiBannerUrl) {
+          try {
+            const vendiRes = await fetch(`https://widgets.vendicated.dev/api/user/${discordId}`);
+            if (vendiRes.ok) {
+              const vendiJson = await vendiRes.json();
+              if (vendiJson && vendiJson.id) {
+                if (vendiJson.banner) {
+                  const isAnimated = vendiJson.banner.startsWith('a_');
+                  japiBannerUrl = `https://cdn.discordapp.com/banners/${discordId}/${vendiJson.banner}${isAnimated ? '.gif' : '.png'}?size=600`;
+                }
+                if (vendiJson.banner_color) {
+                  japiBannerColor = vendiJson.banner_color;
+                } else if (vendiJson.accent_color) {
+                  japiBannerColor = '#' + vendiJson.accent_color.toString(16).padStart(6, '0');
+                }
+              }
+            }
+          } catch (vendiErr) {
+            console.error('Vendicated fallback fetch error:', vendiErr);
+          }
+        }
+
         const { data: settings } = await supabase.from('settings').select('*').single();
         if (json.success) {
           const mergedData = {
