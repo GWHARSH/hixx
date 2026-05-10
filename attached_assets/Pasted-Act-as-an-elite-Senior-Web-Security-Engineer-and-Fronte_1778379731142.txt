@@ -1,0 +1,143 @@
+Act as an elite Senior Web Security Engineer and Frontend Protection Expert.
+
+I want you to transform my website into a highly protected production-grade web app that is extremely difficult to inspect, reverse engineer, scrape, mirror, or download.
+
+Tech Stack:
+- React + Vite
+- Modern frontend architecture
+- Production deployment ready
+
+Your job:
+Implement ADVANCED frontend protection, anti-debugging, anti-downloading, anti-scraping, anti-devtools, anti-bot, and anti-mirroring systems while keeping the website stable and performant.
+
+Requirements:
+
+1. FULL CODE PROTECTION
+- Disable source maps completely
+- Extreme minification
+- Advanced JavaScript obfuscation
+- String encryption
+- Function renaming
+- Self-defending obfuscation
+- Devtools detection loops
+- Console disabling
+- Prevent readable stack traces
+- Runtime integrity checks
+- Detect tampering or modified JS
+
+2. DEVTOOLS PROTECTION
+- Detect if DevTools opens
+- Detect inspect element
+- Detect debugger usage
+- Detect console access
+- Detect source tab access
+- Detect breakpoints
+- Detect paused execution
+- Auto redirect or blank screen if detected
+- Show fake content if DevTools detected
+- Block keyboard shortcuts:
+  - F12
+  - Ctrl+Shift+I
+  - Ctrl+Shift+J
+  - Ctrl+U
+  - Ctrl+S
+  - Ctrl+Shift+C
+
+3. FUNNY DEVTOOLS TROLL SYSTEM
+Inject funny hidden console/devtools messages like:
+- "Bro thought he was hacking NASA 💀"
+- "Nice try skid 😂"
+- "Imagine stealing frontend code in 2026"
+- "Touch grass instead of opening sources tab"
+
+Add styled console messages with colors, huge fonts, warnings, fake terminal outputs, and fake tracking logs.
+
+4. WEBSITE DOWNLOADER PROTECTION
+Protect against:
+- HTTrack
+- wget
+- curl
+- website copier tools
+- scraping bots
+- mirror downloaders
+
+If detected:
+- Serve a fake prank HTML page
+- Fake broken website
+- Meme page
+- Troll redirect
+- Fake loading screen forever
+
+The REAL website must never be downloadable properly.
+
+5. ANTI SCRAPING
+- Bot detection
+- Headless browser detection
+- Selenium detection
+- Puppeteer detection
+- Playwright detection
+- VM detection
+- Rate limiting examples
+- Fingerprinting
+- Request validation
+- Token rotation
+
+6. ASSET PROTECTION
+- Protect images/videos/fonts
+- Lazy encrypted asset loading
+- Canvas rendering tricks
+- Watermark system
+- Anti direct-linking
+- Signed asset URLs
+- Prevent easy image saving
+
+7. NETWORK PROTECTION
+- Add secure headers:
+  - CSP
+  - X-Frame-Options
+  - Referrer-Policy
+  - Permissions-Policy
+- Strict CORS setup
+- Cloudflare optimization suggestions
+- Bot fight mode setup
+- WAF recommendations
+
+8. VITE CONFIG HARDENING
+Create:
+- vite.config.js
+- obfuscation setup
+- production build optimization
+- chunk hiding
+- asset randomization
+- filename hashing
+- anti-debug plugins
+
+9. DEPLOYMENT SECURITY
+Give setup for:
+- Cloudflare
+- Nginx
+- Vercel
+- VPS
+- Reverse proxy protection
+- CDN security
+
+10. OUTPUT FORMAT
+Provide:
+- Full production-ready code
+- Folder structure
+- npm install commands
+- Config files
+- Middleware
+- Security utilities
+- React hooks
+- Anti-debug scripts
+- Deployment configs
+- Comments explaining each protection
+
+IMPORTANT:
+- Keep website functionality intact
+- Do not break React app
+- Make protections production-safe
+- Focus on realistic advanced protection instead of fake gimmicks
+- Maximize difficulty of reverse engineering
+- Make the final setup feel enterprise-grade

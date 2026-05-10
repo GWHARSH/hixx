@@ -1,0 +1,184 @@
+Act as an elite Frontend Performance Engineer and CPU-Optimized Web Architecture Specialist.
+
+I want you to optimize my React + Vite website for MAXIMUM PERFORMANCE and EXTREME RESPONSIVENESS while specifically AVOIDING GPU-heavy rendering techniques and unnecessary hardware acceleration.
+
+Goal:
+Create a website that feels:
+- Instant
+- Extremely snappy
+- Smooth
+- Lightweight
+- Fast on low-end PCs/laptops
+- Battery efficient
+- Stable
+- Low CPU usage
+- Low RAM usage
+- Minimal thermal impact
+
+WITHOUT:
+- Overusing GPU acceleration
+- Excessive transforms
+- Expensive blur effects
+- Heavy shaders
+- Large particles
+- Laggy animations
+- Excessive repainting
+- Excessive compositing layers
+
+IMPORTANT:
+Do NOT compromise:
+- Security systems
+- Anti-devtools protection
+- Anti-bot systems
+- UI quality
+- Premium modern design
+- Animations/effects
+
+Instead:
+Optimize everything intelligently for CPU-efficient rendering.
+
+OPTIMIZATION REQUIREMENTS:
+
+1. REACT OPTIMIZATION
+- Prevent unnecessary rerenders
+- Optimize state updates
+- Component memoization
+- Route-based code splitting
+- Dynamic imports
+- Lazy loading
+- Efficient hooks
+- Remove render waterfalls
+- Optimize context usage
+- Reduce hydration cost
+- Optimize event listeners
+
+2. VITE BUILD OPTIMIZATION
+- Aggressive tree shaking
+- Chunk splitting
+- Vendor isolation
+- Remove dead code
+- Brotli/Gzip setup
+- Hashed asset caching
+- Optimize dependency prebundling
+- Reduce JS parse time
+- Minimize main-thread blocking
+
+3. CPU-EFFICIENT ANIMATIONS
+DO NOT rely heavily on:
+- translate3d
+- will-change spam
+- forced GPU compositing
+- excessive transforms
+- heavy motion blur
+
+Instead:
+- Use lightweight CSS transitions
+- Minimize animation count
+- Reduce paint frequency
+- Optimize animation timing
+- Pause offscreen animations
+- Reduce animation complexity dynamically
+- Use adaptive FPS systems
+- Use requestAnimationFrame properly
+- Avoid layout thrashing
+
+4. CSS OPTIMIZATION
+- Remove unused CSS
+- Optimize Tailwind output
+- Reduce style recalculations
+- Avoid expensive selectors
+- Avoid excessive box-shadows/blurs
+- Efficient responsive layouts
+- Minimal repaint triggers
+
+5. MEMORY OPTIMIZATION
+- Prevent memory leaks
+- Cleanup listeners/timers
+- Optimize caches
+- Avoid DOM bloat
+- Virtualize large lists
+- Garbage-collector-friendly patterns
+
+6. ASSET OPTIMIZATION
+- WebP/AVIF images
+- Lazy loading
+- Responsive sizing
+- Font optimization
+- Deferred assets
+- Compression
+- CDN caching
+- Reduce asset decode cost
+
+7. NETWORK OPTIMIZATION
+- HTTP/2 optimization
+- CDN optimization
+- Cache-control headers
+- Resource prioritization
+- DNS prefetch
+- Preconnect optimization
+- Reduce request count
+
+8. SECURITY + PERFORMANCE BALANCE
+Keep:
+- Obfuscation
+- Anti-devtools
+- Anti-scraping
+- Security headers
+- Bot protection
+
+BUT:
+- Make security systems asynchronous/lightweight
+- Avoid heavy polling loops
+- Avoid CPU-draining detection systems
+- Optimize security checks intelligently
+
+9. MOBILE + LOW-END DEVICE OPTIMIZATION
+- Optimize for weak CPUs
+- Battery efficiency
+- Thermal efficiency
+- Reduce background tasks
+- Adaptive quality scaling
+- Efficient touch responsiveness
+
+10. SERVER + DEPLOYMENT OPTIMIZATION
+Include:
+- Nginx optimization
+- Cloudflare optimization
+- Brotli compression
+- Edge caching
+- Reverse proxy optimization
+- Vercel optimization
+
+11. PERFORMANCE TARGETS
+Aim for:
+- Lighthouse 95+
+- Minimal input delay
+- Fast TTI
+- Low CLS
+- Minimal CPU spikes
+- Stable memory usage
+- Fast route transitions
+- No stutters
+- Smooth scrolling
+- Minimal fan usage on laptops
+
+12. OUTPUT FORMAT
+Provide:
+- Full optimized code
+- vite.config.js
+- React optimization examples
+- Lightweight animation examples
+- Security-performance balanced configs
+- Nginx configs
+- Cloudflare settings
+- Performance hooks
+- Build scripts
+- Bundle optimization setup
+- Deployment recommendations
+
+IMPORTANT:
+- Keep the premium modern look
+- Keep effects elegant but lightweight
+- Prioritize CPU-efficient rendering
+- Make the site feel extremely polished and responsive
+- Focus on real-world performance instead of flashy benchmarks

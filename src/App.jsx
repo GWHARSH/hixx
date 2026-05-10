@@ -14,12 +14,12 @@ import DevToolsBlocker from './components/DevToolsBlocker';
 import AnnouncementPopup from './components/AnnouncementPopup';
 import ScrollToTop from './components/ScrollToTop';
 import { useTracking } from './hooks/useTracking';
+import { useAntiBot } from './hooks/useAntiBot';
 import './index.css';
 
-// Inner component — lives INSIDE BrowserRouter so useLocation() works
 function AppInner() {
-  console.log("AppInner: Rendering");
   useTracking();
+  useAntiBot();
   return (
     <>
       <ScrollToTop />

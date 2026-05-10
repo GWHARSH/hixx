@@ -1,13 +1,25 @@
-User-agent: *
+# ── YAMATO Security Protocol — robots.txt ──────────────────────────
+# This website is protected. Unauthorized scraping, mirroring,
+# downloading, or automated access is prohibited and logged.
+
+# Legitimate search engines
+User-agent: Googlebot
+Allow: /
+Disallow: /admin
+Disallow: /login
+Disallow: /api/
+
+User-agent: Bingbot
+Allow: /
 Disallow: /admin
 Disallow: /login
 
-# Allow search engines to see the main content
+User-agent: DuckDuckBot
 Allow: /
-Allow: /uploads
-Allow: /packages
+Disallow: /admin
+Disallow: /login
 
-# Block known scrapers and download bots
+# ── Block ALL known scrapers, downloaders, and bots ──────────────────
 User-agent: HTTrack
 Disallow: /
 
@@ -16,3 +28,133 @@ Disallow: /
 
 User-agent: curl
 Disallow: /
+
+User-agent: libwww-perl
+Disallow: /
+
+User-agent: Python-urllib
+Disallow: /
+
+User-agent: python-requests
+Disallow: /
+
+User-agent: Go-http-client
+Disallow: /
+
+User-agent: Java
+Disallow: /
+
+User-agent: Scrapy
+Disallow: /
+
+User-agent: Nutch
+Disallow: /
+
+User-agent: SiteSucker
+Disallow: /
+
+User-agent: WebCopier
+Disallow: /
+
+User-agent: Teleport
+Disallow: /
+
+User-agent: TeleportPro
+Disallow: /
+
+User-agent: WebReaper
+Disallow: /
+
+User-agent: WebStripper
+Disallow: /
+
+User-agent: BlackWidow
+Disallow: /
+
+User-agent: Offline Explorer
+Disallow: /
+
+User-agent: SiteSnagger
+Disallow: /
+
+User-agent: ProWebWalker
+Disallow: /
+
+User-agent: CheeseBot
+Disallow: /
+
+User-agent: LNSpiderguy
+Disallow: /
+
+User-agent: Copycat
+Disallow: /
+
+User-agent: Larbin
+Disallow: /
+
+User-agent: EmailSiphon
+Disallow: /
+
+User-agent: EmailWolf
+Disallow: /
+
+User-agent: ExtractorPro
+Disallow: /
+
+User-agent: CopyRightCheck
+Disallow: /
+
+User-agent: Crescent
+Disallow: /
+
+User-agent: SiteSnagger
+Disallow: /
+
+User-agent: Zeus
+Disallow: /
+
+# ── Block SEO/data harvesting bots ───────────────────────────────────
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+User-agent: PetalBot
+Disallow: /
+
+User-agent: DataForSeoBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+# ── Catch-all: block any unlisted bot ────────────────────────────────
+# NOTE: Googlebot/Bingbot are whitelisted above, so this only catches
+# unrecognized agents that don't match the allowed list.
+
+Sitemap: /sitemap.xml
