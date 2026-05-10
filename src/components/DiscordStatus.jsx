@@ -55,9 +55,31 @@ export default function DiscordStatus({ discordId }) {
       try {
         const res = await fetch(`https://api.lanyard.rest/v1/users/${discordId}`);
         const json = await res.json();
+
+        let japiBannerUrl = null;
+        let japiBannerColor = null;
+        try {
+          const japiRes = await fetch(`https://japi.rest/discord/v1/user/${discordId}`);
+          const japiJson = await japiRes.json();
+          if (japiJson.success && japiJson.data) {
+            japiBannerUrl = japiJson.data.bannerURL || null;
+            japiBannerColor = japiJson.data.banner_color || null;
+          }
+        } catch (japiErr) {
+          console.error('JAPI fetch error:', japiErr);
+        }
+
         const { data: settings } = await supabase.from('settings').select('*').single();
         if (json.success) {
-          setDiscordData(json.data);
+          const mergedData = {
+            ...json.data,
+            discord_user: {
+              ...json.data.discord_user,
+              banner: japiBannerUrl || json.data.discord_user.banner || null,
+              banner_color: japiBannerColor || json.data.discord_user.banner_color || null
+            }
+          };
+          setDiscordData(mergedData);
           setCustomSettings(settings);
         }
       } catch (err) {
@@ -107,7 +129,7 @@ export default function DiscordStatus({ discordId }) {
     : `https://cdn.discordapp.com/embed/avatars/${parseInt(discord_user.discriminator || '0') % 5}.png`;
 
   const bannerUrl = discord_user.banner
-    ? `https://cdn.discordapp.com/banners/${discord_user.id}/${discord_user.banner}${discord_user.banner.startsWith('a_') ? '.gif' : '.png'}?size=600`
+    ? (discord_user.banner.startsWith('http') ? discord_user.banner : `https://cdn.discordapp.com/banners/${discord_user.id}/${discord_user.banner}${discord_user.banner.startsWith('a_') ? '.gif' : '.png'}?size=600`)
     : null;
 
   const bannerColor = discord_user.banner_color || '#1a0a1e';
