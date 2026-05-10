@@ -180,12 +180,13 @@ export default defineConfig({
 
     // ── JavaScript Obfuscation (build only) ──────────────────────
     obfuscator({
-      include: [/src\/components\/DevToolsBlocker\.jsx$/],
-      exclude: [/node_modules/],
+      include: [/\.(js|jsx|ts|tsx)$/],
+      exclude: [/node_modules/, /setup-admin/],
       apply: 'build',
       options: {
         compact: true,
-        controlFlowFlattening: false,
+        controlFlowFlattening: true,
+        controlFlowFlatteningThreshold: 0.5,
         deadCodeInjection: false,
         debugProtection: true,
         debugProtectionInterval: 4000,
@@ -257,15 +258,21 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        assetFileNames: 'assets/[hash:20][extname]',
-        chunkFileNames: 'assets/[hash:20].js',
-        entryFileNames: 'assets/[hash:20].js',
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name && assetInfo.name.endsWith('.css')) {
+            return 'assets/clown-assets-[hash:8][extname]';
+          }
+          return 'assets/[name]-[hash:8][extname]';
+        },
+        chunkFileNames: 'assets/troll-logic-[hash:8].js',
+        entryFileNames: 'assets/security-core-[hash:8].js',
         manualChunks(id) {
           if (!id.includes('node_modules')) return;
-          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) return 'v0';
-          if (id.includes('framer-motion')) return 'v1';
-          if (id.includes('firebase')) return 'v2';
-          return 'v3';
+          // Split vendor libraries into separate obfuscated troll-logic chunks
+          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) return 'react-vendor';
+          if (id.includes('framer-motion')) return 'motion-vendor';
+          if (id.includes('firebase')) return 'firebase-vendor';
+          return 'common-vendor';
         },
       },
       onwarn(warning, warn) {

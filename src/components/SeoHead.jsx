@@ -74,7 +74,7 @@ export default function SeoHead() {
       alternateName: ['HIx playz', 'Immortal', 'Immortal Demi Gods', 'Demigods'],
       description: seoDesc,
       image: logoUrl || '/og-image.png',
-      url: window.location.origin,
+      url: 'https://alwaysharsh.lol',
       sameAs: getSameAsLinks(settings),
     });
   }, [settings]);
