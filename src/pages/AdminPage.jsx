@@ -93,6 +93,40 @@ export default function AdminPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const compressImage = (file, maxWidth = 1000, maxHeight = 1000, quality = 0.75) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const base64 = canvas.toDataURL('image/jpeg', quality);
+        resolve(base64);
+      };
+      img.onerror = (err) => reject(err);
+    });
+  };
+
   const handleFileUpload = async (e, fieldName) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -100,20 +134,16 @@ export default function AdminPage() {
     setUploadingField(fieldName);
     
     try {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64Url = reader.result;
-        if (activeTab === 'settings') {
-          setSettingsData(prev => ({ ...prev, [fieldName]: base64Url }));
-        } else {
-          setFormData(prev => ({ ...prev, [fieldName]: base64Url }));
-        }
-        show('Image converted to URL successfully!', 'success');
-        setUploadingField(null);
-      };
-      reader.readAsDataURL(file);
+      const compressedBase64 = await compressImage(file);
+      if (activeTab === 'settings') {
+        setSettingsData(prev => ({ ...prev, [fieldName]: compressedBase64 }));
+      } else {
+        setFormData(prev => ({ ...prev, [fieldName]: compressedBase64 }));
+      }
+      show('Image uploaded and compressed successfully!', 'success');
+      setUploadingField(null);
     } catch (err) {
-      show('Conversion failed: ' + err.message, 'error');
+      show('Upload & compression failed: ' + err.message, 'error');
       setUploadingField(null);
     }
   };

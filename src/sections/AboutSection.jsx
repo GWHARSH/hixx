@@ -8,7 +8,7 @@ export default function AboutSection() {
   const discordId = settings?.discord_id || "";
 
   return (
-    <section className="about about--split" id="about">
+    <section className="about" id="about">
       <div className="about__inner">
         <motion.div
           className="about__header"
