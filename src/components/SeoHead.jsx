@@ -28,8 +28,7 @@ export default function SeoHead() {
 
     // Update page title (with no m-dashes, using clean normal hyphens)
     const rawTitle = settings.site_name || settings.hero_title || 'HIXX PLAYZ';
-    const heroTitle = rawTitle.toUpperCase().includes('HIXX') ? rawTitle : `${rawTitle} - HIXX PLAYZ`;
-    const finalTitle = `${heroTitle} - Immortal Demi Gods - Demigods Clan`;
+    const finalTitle = `${rawTitle} - Immortal Demi Gods - Demigods Clan`;
     document.title = finalTitle;
 
     // Update meta description (fully optimized for SEO keywords, normal hyphens only)
@@ -49,9 +48,9 @@ export default function SeoHead() {
       updateMeta('twitter:image', logoUrl, 'property');
     }
 
-    updateMeta('og:title', `${heroTitle} - Immortal from Demi Gods`, 'property');
+    updateMeta('og:title', `${rawTitle} - Immortal from Demi Gods`, 'property');
     updateMeta('og:description', seoDesc, 'property');
-    updateMeta('twitter:title', `${heroTitle} - Immortal from Demi Gods`, 'property');
+    updateMeta('twitter:title', `${rawTitle} - Immortal from Demi Gods`, 'property');
     updateMeta('twitter:description', seoDesc, 'property');
 
     // Update favicon with separate favicon_url or fallback

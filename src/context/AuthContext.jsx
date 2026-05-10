@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db, isFirebaseConfigured } from '../lib/firebase';
 import { signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
+import PremiumLoader from '../components/PremiumLoader';
 
 const AuthContext = createContext({});
 
@@ -76,10 +77,8 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={value}>
       {loading ? (
-        <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#050508', color: 'white', fontFamily: "'Outfit', sans-serif" }}>
-          <div style={{ border: '4px solid rgba(244,114,182,0.1)', borderLeftColor: '#f472b6', borderRadius: '50%', width: '30px', height: '30px', animation: 'spin 1s linear infinite' }}></div>
-          <p style={{ marginLeft: '15px', letterSpacing: '1px', textTransform: 'uppercase', fontSize: '0.8rem' }}>Synchronizing Protocol...</p>
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#050508' }}>
+          <PremiumLoader text="Synchronizing System Protocol" size="lg" />
         </div>
       ) : children}
     </AuthContext.Provider>
