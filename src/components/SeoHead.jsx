@@ -78,7 +78,7 @@ export default function SeoHead() {
     jsonLdScript.textContent = JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'Person',
-      name: heroTitle,
+      name: rawTitle,
       alternateName: ['HIXX PLAYZ', 'Immortal', 'Immortal Demi Gods', 'Demigods'],
       description: seoDesc,
       image: logoUrl || '/og-image.png',
