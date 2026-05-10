@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { ExternalLink, ChevronDown, Music, Gamepad2, Info } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { useSettings } from '../context/SettingsContext';
 
 const StatusColors = {
   online: '#23a55a',
@@ -40,8 +40,8 @@ function formatTime(ms) {
 }
 
 export default function DiscordStatus({ discordId }) {
+  const { settings } = useSettings();
   const [discordData, setDiscordData] = useState(null);
-  const [customSettings, setCustomSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [modalData, setModalData] = useState(null);
   const [progress, setProgress] = useState(0);
@@ -92,7 +92,6 @@ export default function DiscordStatus({ discordId }) {
           }
         }
 
-        const { data: settings } = await supabase.from('settings').select('*').single();
         if (json.success) {
           const mergedData = {
             ...json.data,
@@ -103,7 +102,6 @@ export default function DiscordStatus({ discordId }) {
             }
           };
           setDiscordData(mergedData);
-          setCustomSettings(settings);
         }
       } catch (err) {
         console.error('Discord fetch error:', err);
@@ -158,7 +156,7 @@ export default function DiscordStatus({ discordId }) {
   const bannerColor = discord_user.banner_color || '#1a0a1e';
 
   const getSocialLinks = (plat) => {
-    const raw = customSettings?.[plat];
+    const raw = settings?.[plat];
     if (!raw) return [];
     try {
       return typeof raw === 'string' && raw.startsWith('[') ? JSON.parse(raw) : (Array.isArray(raw) ? raw : [{ url: raw, title: 'Main' }]);
@@ -250,7 +248,7 @@ export default function DiscordStatus({ discordId }) {
           <div className="dcard__section">
             <h4 className="dcard__section-title">ABOUT ME</h4>
             <p className="dcard__bio">
-              {customSettings?.discord_bio || discord_user.bio || "Crafting digital experiences and exploring the future of tech."}
+              {settings?.discord_bio || discord_user.bio || "Crafting digital experiences and exploring the future of tech."}
             </p>
 
             {/* Social Links */}

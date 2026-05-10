@@ -1,60 +1,39 @@
 import { Link } from 'react-router-dom';
 import { Camera, Send, Play, Code, ArrowUp, ChevronDown } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { useState } from 'react';
+import { useSettings } from '../context/SettingsContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Footer() {
-  const [socials, setSocials] = useState({ 
-    instagram: [], twitter: [], youtube: [], github: [], discord: [] 
-  });
+  const { settings } = useSettings();
   const [modalData, setModalData] = useState(null);
-  const [brandName, setBrandName] = useState(() => {
-    try {
-      const cached = localStorage.getItem('cached_settings');
-      if (cached) {
-        const data = JSON.parse(cached);
-        const name = data.site_name || data.hero_title || '';
-        const parts = name.trim().split(/\s+/);
-        if (parts.length >= 2) {
-          return { first: parts[0], second: parts.slice(1).join(' ') };
-        }
-        return { first: parts[0] || '', second: '' };
-      }
-    } catch (_) {}
-    return { first: '', second: '' };
-  });
 
-  useEffect(() => {
-    supabase.from('settings').select('*').single().then(({ data }) => {
-      if (data) {
-        localStorage.setItem('cached_settings', JSON.stringify(data));
-        const parse = (val) => {
-          try {
-            if (!val) return [];
-            return typeof val === 'string' && val.startsWith('[') ? JSON.parse(val) : [{ title: 'Main', url: val }];
-          } catch {
-            return [{ title: 'Main', url: val }];
-          }
-        };
-        setSocials({
-          instagram: parse(data.instagram),
-          twitter: parse(data.twitter),
-          youtube: parse(data.youtube),
-          github: parse(data.github),
-          discord: parse(data.discord)
-        });
-        
-        const name = data.site_name || data.hero_title || '';
-        const parts = name.trim().split(/\s+/);
-        if (parts.length >= 2) {
-          setBrandName({ first: parts[0], second: parts.slice(1).join(' ') });
-        } else {
-          setBrandName({ first: parts[0] || '', second: '' });
-        }
-      }
-    });
-  }, []);
+  const parseSocials = (val) => {
+    try {
+      if (!val) return [];
+      return typeof val === 'string' && val.startsWith('[') ? JSON.parse(val) : [{ title: 'Main', url: val }];
+    } catch {
+      return [{ title: 'Main', url: val }];
+    }
+  };
+
+  const socials = {
+    instagram: settings ? parseSocials(settings.instagram) : [],
+    twitter: settings ? parseSocials(settings.twitter) : [],
+    youtube: settings ? parseSocials(settings.youtube) : [],
+    github: settings ? parseSocials(settings.github) : [],
+    discord: settings ? parseSocials(settings.discord) : []
+  };
+
+  const brandName = (() => {
+    if (!settings) return { first: 'IMMU', second: 'BABY' };
+    const name = settings.site_name || settings.hero_title || 'IMMU BABY';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return { first: parts[0], second: parts.slice(1).join(' ') };
+    }
+    return { first: parts[0] || '', second: '' };
+  })();
 
   const handleSocialClick = (e, platform, links) => {
     if (links && links.length > 1) {

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { SettingsProvider } from './context/SettingsContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
@@ -55,12 +56,14 @@ function AppInner() {
 export default function App() {
   return (
     <NotificationProvider>
-      <AuthProvider>
-        <DevToolsBlocker />
-        <BrowserRouter>
-          <AppInner />
-        </BrowserRouter>
-      </AuthProvider>
+      <SettingsProvider>
+        <AuthProvider>
+          <DevToolsBlocker />
+          <BrowserRouter>
+            <AppInner />
+          </BrowserRouter>
+        </AuthProvider>
+      </SettingsProvider>
     </NotificationProvider>
   );
 }

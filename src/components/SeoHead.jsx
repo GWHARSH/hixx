@@ -1,27 +1,12 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { useEffect } from 'react';
+import { useSettings } from '../context/SettingsContext';
 
 /**
  * SeoHead — dynamically manages document <head> meta tags
  * Reads SEO settings from Firebase and updates OG image, title, description.
  */
 export default function SeoHead() {
-  const [settings, setSettings] = useState(() => {
-    try {
-      const cached = localStorage.getItem('cached_settings');
-      if (cached) return JSON.parse(cached);
-    } catch (_) {}
-    return null;
-  });
-
-  useEffect(() => {
-    supabase.from('settings').select('*').single().then(({ data }) => {
-      if (data) {
-        localStorage.setItem('cached_settings', JSON.stringify(data));
-        setSettings(data);
-      }
-    });
-  }, []);
+  const { settings } = useSettings();
 
   useEffect(() => {
     if (!settings) return;

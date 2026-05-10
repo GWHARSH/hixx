@@ -1,21 +1,11 @@
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { useSettings } from '../context/SettingsContext';
 import DiscordStatus from '../components/DiscordStatus';
 
 export default function AboutSection() {
-  const [aboutText, setAboutText] = useState("");
-  const [discordId, setDiscordId] = useState("");
-
-  useEffect(() => {
-    supabase.from('settings').select('*').single().then(({ data, error }) => {
-      if (error) console.error("Settings fetch error:", error);
-      if (data) {
-        setAboutText(data.about_text || "");
-        setDiscordId(data.discord_id || "");
-      }
-    });
-  }, []);
+  const { settings } = useSettings();
+  const aboutText = settings?.about_text || "";
+  const discordId = settings?.discord_id || "";
 
   return (
     <section className="about about--split" id="about">

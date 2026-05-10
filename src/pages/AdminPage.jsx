@@ -3,11 +3,13 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { useSettings } from '../context/SettingsContext';
 import { Plus, Trash2, Save, X, Upload, Check, Loader2, Megaphone } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
 
 export default function AdminPage() {
   const { user } = useAuth();
+  const { refreshSettings } = useSettings();
   const navigate = useNavigate();
   const { show, confirm } = useNotification();
   const [activeTab, setActiveTab] = useState('uploads');
@@ -127,6 +129,7 @@ export default function AdminPage() {
         error = result.error;
         if (!error) {
           show('Settings saved!', 'success');
+          await refreshSettings();
           fetchItems();
           return;
         }
@@ -135,6 +138,7 @@ export default function AdminPage() {
       if (error) show('Error saving settings: ' + error.message, 'error');
       else {
         show('Settings saved successfully!', 'success');
+        await refreshSettings();
         fetchItems();
       }
       return;

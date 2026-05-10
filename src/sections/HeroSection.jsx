@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Volume2, VolumeX } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { useSettings } from '../context/SettingsContext';
 import heroImg from '/hero-f1.jpg';
 
 // ── Shared social icons map ──────────────────────────────────
@@ -101,62 +101,36 @@ function StyleApex({ socials, onSocialClick, scrollDown, heroContent }) {
   );
 }
 
-const DEFAULT_HERO = {
-  title: '',
-  description: '',
-  eyebrow: '',
-};
-
 export default function HeroSection() {
+  const { settings } = useSettings();
   const [isMuted, setIsMuted] = useState(true);
-  const [socials, setSocials] = useState({ instagram: [], twitter: [], youtube: [], github: [], discord: [] });
-  const [bgMusic, setBgMusic] = useState('/bg-music.mp3');
   const [modalData, setModalData] = useState(null);
-  const [heroContent, setHeroContent] = useState(() => {
-    try {
-      const cached = localStorage.getItem('cached_settings');
-      if (cached) {
-        const data = JSON.parse(cached);
-        return {
-          title: data.hero_title || '',
-          description: data.hero_description || '',
-          eyebrow: data.hero_eyebrow || '',
-        };
-      }
-    } catch (_) {}
-    return DEFAULT_HERO;
-  });
   const audioRef = useRef(null);
 
-  useEffect(() => {
-    supabase.from('settings').select('*').single().then(({ data }) => {
-      if (!data) return;
-      localStorage.setItem('cached_settings', JSON.stringify(data));
-      const parse = (val) => {
-        try {
-          if (!val) return [];
-          return typeof val === 'string' && val.startsWith('[')
-            ? JSON.parse(val)
-            : [{ title: 'Main', url: val }];
-        } catch { return [{ title: 'Main', url: val }]; }
-      };
-      setSocials({
-        instagram: parse(data.instagram),
-        twitter: parse(data.twitter),
-        youtube: parse(data.youtube),
-        github: parse(data.github),
-        discord: parse(data.discord),
-      });
-      if (data.bg_music_url) setBgMusic(data.bg_music_url);
+  const parseSocials = (val) => {
+    try {
+      if (!val) return [];
+      return typeof val === 'string' && val.startsWith('[')
+        ? JSON.parse(val)
+        : [{ title: 'Main', url: val }];
+    } catch { return [{ title: 'Main', url: val }]; }
+  };
 
-      // Load dynamic hero content from settings
-      setHeroContent({
-        title: data.hero_title || '',
-        description: data.hero_description || '',
-        eyebrow: data.hero_eyebrow || '',
-      });
-    });
-  }, []);
+  const socials = {
+    instagram: settings ? parseSocials(settings.instagram) : [],
+    twitter: settings ? parseSocials(settings.twitter) : [],
+    youtube: settings ? parseSocials(settings.youtube) : [],
+    github: settings ? parseSocials(settings.github) : [],
+    discord: settings ? parseSocials(settings.discord) : [],
+  };
+
+  const bgMusic = settings?.bg_music_url || '/bg-music.mp3';
+
+  const heroContent = {
+    title: settings?.hero_title || 'IMMU BABY',
+    description: settings?.hero_description || '',
+    eyebrow: settings?.hero_eyebrow || '',
+  };
 
   // Parse title into first/last parts
   const titleParts = (heroContent.title || 'HIXX PLAYZ').trim().split(/\s+/);
