@@ -64,10 +64,31 @@ function HeroSubtitle({ text, className = '' }) {
 // ══════════════════════════════════════════════════════
 //  STYLE — APEX (Exclusive Locked Theme, CPU Optimized)
 // ══════════════════════════════════════════════════════
-function StyleApex({ socials, onSocialClick, scrollDown, heroContent }) {
+function StyleApex({ socials, onSocialClick, scrollDown, heroContent, settings }) {
+  const isVideoBg = (settings?.motion_bg_type || 'video') === 'video' && settings?.motion_bg_url;
+  const bgOpacity = settings?.motion_bg_opacity ? Number(settings.motion_bg_opacity) : 0.45;
+
   return (
     <div className="hs hs--apex">
-      <img src={heroImg} alt="" className="hs__bg-img" aria-hidden="true" loading="eager" />
+      {isVideoBg ? (
+        <video
+          src={forceHttps(settings.motion_bg_url)}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="hs__bg-img hs__bg-video"
+          style={{ opacity: bgOpacity }}
+        />
+      ) : (
+        <img
+          src={forceHttps(settings?.custom_banner_url || settings?.motion_bg_url) || heroImg}
+          alt=""
+          className="hs__bg-img"
+          aria-hidden="true"
+          loading="eager"
+        />
+      )}
       <div className="hs__overlay hs__overlay--apex" />
       <div className="hs__noise" />
 
@@ -161,7 +182,7 @@ export default function HeroSection() {
 
   return (
     <section className="hero-wrapper" id="hero">
-      <StyleApex socials={socials} onSocialClick={handleSocialClick} scrollDown={scrollDown} heroContent={parsedHero} />
+      <StyleApex socials={socials} onSocialClick={handleSocialClick} scrollDown={scrollDown} heroContent={parsedHero} settings={settings} />
 
 
 

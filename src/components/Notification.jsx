@@ -12,11 +12,11 @@ const CONFIG = {
   },
   error: {
     icon: XCircle,
-    gradient: 'linear-gradient(135deg, rgba(255,0,0,0.15), rgba(204,0,0,0.08))',
-    border: 'rgba(255,0,0,0.35)',
-    glow: '0 0 20px rgba(255,0,0,0.15), 0 8px 32px rgba(0,0,0,0.3)',
-    iconColor: '#FF3333',
-    accent: '#FF0000',
+    gradient: 'linear-gradient(135deg, rgba(56,189,248,0.15), rgba(2,132,199,0.08))',
+    border: 'rgba(56,189,248,0.35)',
+    glow: '0 0 20px rgba(56,189,248,0.15), 0 8px 32px rgba(0,0,0,0.3)',
+    iconColor: '#38BDF8',
+    accent: '#00F0FF',
   },
   warning: {
     icon: AlertTriangle,

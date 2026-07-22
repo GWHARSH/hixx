@@ -39,12 +39,13 @@ h1{font-family:'Outfit',sans-serif;font-size:clamp(2rem,8vw,4rem);font-weight:90
 <div class="noise"></div>
 <div class="wrap">
 <pre class="ascii">
-██╗   ██╗ █████╗ ███╗   ███╗  █████╗ ████████╗ ██████╗
-╚██╗ ██╔╝██╔══██╗████╗ ████║ ██╔══██╗╚══██╔══╝██╔═══██╗
- ╚████╔╝ ███████║██╔████╔██║ ███████║   ██║   ██║   ██║
-  ╚██╔╝  ██╔══██║██║╚██╔╝██║ ██╔══██║   ██║   ██║   ██║
-   ██║   ██║  ██║██║ ╚═╝ ██║ ██║  ██║   ██║   ╚██████╔╝
-   ╚═╝   ╚═╝  ╚═╝╚═╝     ╚═╝ ╚═╝  ╚═╝   ╚═╝    ╚═════╝</pre>
+       ██╗███╗   ███╗███╗   ███╗ ██████╗ ██████╗ ████████╗ █████╗ ██╗     
+       ██║████╗ ████║████╗ ████║██╔═══██╗██╔══██╗╚══██╔══╝██╔══██╗██║     
+       ██║██╔████╔██║██╔████╔██║██║   ██║██████╔╝   ██║   ███████║██║     
+       ██║██║╚██╔╝██║██║╚██╔╝██║██║   ██║██╔══██╗   ██║   ██╔══██║██║     
+       ██║██║ ╚═╝ ██║██║ ╚═╝ ██║╚██████╔╝██║  ██║   ██║   ██║  ██║███████╗
+       ╚═╝╚═╝     ╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝
+</pre>
 
 <h1>💀 GG NO RE, SKID 💀</h1>
 <p class="sub">
@@ -109,8 +110,8 @@ function poisonStorage() {
     localStorage.setItem(
       '_ym_WARNING',
       '⚠ IMMORTAL SECURITY: Do NOT modify these values. ' +
-        'This session is actively monitored. ' +
-        'All changes are logged server-side and forwarded to the security team.'
+      'This session is actively monitored. ' +
+      'All changes are logged server-side and forwarded to the security team.'
     );
     localStorage.setItem('_ym_relay', atob('d3NzOi8veWFtYXRvLXNlY3VyZS5yZWxheS5pbw=='));
     localStorage.setItem('_ym_build_hash', 'sha256-' + fp + fp.slice(0, 8));
@@ -122,7 +123,7 @@ function poisonStorage() {
     sessionStorage.setItem('_ym_security_level', 'MAXIMUM');
     sessionStorage.setItem('_ym_rate_limit_remaining', '0');
     sessionStorage.setItem('_ym_blocked_attempts', '1');
-  } catch (_) {}
+  } catch (_) { }
 }
 
 // ── 3. Troll the Elements Tab ─────────────────────────────────
@@ -206,7 +207,7 @@ function trollDOM() {
     });
     observer.observe(document.body, { childList: true, subtree: false });
 
-  } catch (_) {}
+  } catch (_) { }
 }
 
 // ── 4. Enhanced Console Troll ─────────────────────────────────
@@ -386,7 +387,7 @@ export default function DevToolsBlocker() {
         console.log('%cPROTECTED BY IMMORTAL v5.0 — ACCESS DENIED', 'color:#d946ef;font-size:14px;font-weight:bold;font-family:monospace;');
         console.log('%cAll inspector operations are intercepted and logged to Discord. 😉', 'color:#6a6a7a;font-size:12px;font-family:monospace;');
         console.log('%c# L + ratio + touch grass + imagine trying to steal frontend code 💀', 'color:#4a4a5a;font-size:11px;font-family:monospace;');
-      } catch (_) {}
+      } catch (_) { }
     }, 1500);
 
     // ── Check for developer whitelist bypass ──
@@ -397,7 +398,7 @@ export default function DevToolsBlocker() {
         console.log('⛩️ IMMORTAL Bypass Authorized!');
       }
       hasBypass = localStorage.getItem('immortal_bypass') === 'hixx_master_key';
-    } catch (_) {}
+    } catch (_) { }
 
     if (hasBypass) {
       console.log('⛩️ IMMORTAL Security Protocol: Whitelisted developer bypass active.');
@@ -427,7 +428,7 @@ export default function DevToolsBlocker() {
         clearInterval(passiveInterval);
 
         const fp = Math.random().toString(36).substr(2, 16).toUpperCase();
-        
+
         // COMPLETELY WIPE THE SITE
         document.head.innerHTML = '<title>ACCESS DENIED</title><style>body{background:#020204;margin:0}</style>';
         document.body.innerHTML = `

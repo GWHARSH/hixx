@@ -12,34 +12,34 @@ export default function SeoHead() {
   useEffect(() => {
     if (!settings) return;
 
-    // Update page title (with no m-dashes, using clean normal hyphens)
+    // Update page title
     const rawTitle = settings.site_name || settings.hero_title || 'IMMORTAL';
-    const finalTitle = `${rawTitle} - Immortal Demi Gods - Demigods Clan`;
+    const finalTitle = `${rawTitle} - Official Website`;
     document.title = finalTitle;
 
-    // Update meta description (fully optimized for SEO keywords, normal hyphens only)
-    const baseDesc = settings.hero_description || 'Official portfolio of IMMORTAL, immortal from demi gods. Explore uploads, gaming packages, and media from demigods clan.';
-    const cleanDesc = baseDesc.replace(/—|–/g, ' - '); // strip any stray m-dashes/en-dashes
-    const seoDesc = `${cleanDesc} | Join the world of immortal demi gods and explore exclusive gaming packages.`.slice(0, 160);
+    // Update meta description
+    const baseDesc = settings.hero_description || 'Official portfolio of IMMORTAL. Explore uploads, gaming packages, and media.';
+    const cleanDesc = baseDesc.replace(/—|–/g, ' - ');
+    const seoDesc = `${cleanDesc} | Explore exclusive gaming packages & content.`.slice(0, 160);
     updateMeta('description', seoDesc);
 
     // Update keywords dynamically
-    const keywords = 'IMMORTAL, immortal, immortal from demi gods, immortal demi gods, demigods, demigods clan, demigods gaming, gaming portfolio, immortal playz, gaming downloads';
+    const keywords = 'IMMORTAL, immortal, immortal playz, gaming portfolio, gaming downloads, web developer, discord';
     updateMeta('keywords', keywords);
 
-    // Update OG tags (using clean titles and descriptions with standard hyphens)
+    // Update OG tags
     const logoUrl = forceHttps(settings.seo_logo_url);
     if (logoUrl) {
       updateMeta('og:image', logoUrl, 'property');
       updateMeta('twitter:image', logoUrl, 'property');
     }
 
-    updateMeta('og:title', `${rawTitle} - Immortal from Demi Gods`, 'property');
+    updateMeta('og:title', `${rawTitle} - Official Portfolio`, 'property');
     updateMeta('og:description', seoDesc, 'property');
-    updateMeta('twitter:title', `${rawTitle} - Immortal from Demi Gods`, 'property');
+    updateMeta('twitter:title', `${rawTitle} - Official Portfolio`, 'property');
     updateMeta('twitter:description', seoDesc, 'property');
 
-    // Update favicon with separate favicon_url or fallback
+    // Update favicon
     const faviconUrl = forceHttps(settings.favicon_url) || logoUrl || '/favicon.svg';
     const existingFavicon = document.querySelector('link[rel="icon"]');
     if (existingFavicon) {
@@ -53,7 +53,7 @@ export default function SeoHead() {
       }
     }
 
-    // Add JSON-LD structured data with clean hyphens and keywords
+    // Add JSON-LD structured data
     let jsonLdScript = document.getElementById('seo-jsonld');
     if (!jsonLdScript) {
       jsonLdScript = document.createElement('script');
@@ -65,7 +65,7 @@ export default function SeoHead() {
       '@context': 'https://schema.org',
       '@type': 'Person',
       name: rawTitle,
-      alternateName: ['IMMORTAL', 'Immortal', 'Immortal Demi Gods', 'Demigods'],
+      alternateName: ['IMMORTAL', 'Immortal'],
       description: seoDesc,
       image: logoUrl || '/og-image.png',
       url: 'https://alwaysharsh.lol',

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { AuthProvider } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
 import Navbar from './components/Navbar';
@@ -16,9 +17,38 @@ import AnnouncementPopup from './components/AnnouncementPopup';
 import GlobalAudioPlayer from './components/GlobalAudioPlayer';
 import ScrollToTop from './components/ScrollToTop';
 import SeoHead from './components/SeoHead';
+import InteractiveCanvasParticles from './components/InteractiveCanvasParticles';
+import CustomCursor from './components/CustomCursor';
+import ScrollProgress from './components/ScrollProgress';
 import { useTracking } from './hooks/useTracking';
 import { useGlobalScrollReveal } from './hooks/useScrollReveal';
 import './index.css';
+
+function AnimatedRoutes() {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.25, ease: 'easeOut' }}
+      >
+        <Routes location={location}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/uploads" element={<UploadsPage />} />
+          <Route path="/uploads/:slug" element={<UploadDetails />} />
+          <Route path="/packages" element={<PackagesPage />} />
+          <Route path="/packages/:slug" element={<PackageDetails />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin" element={<AdminPage />} />
+        </Routes>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
 
 function AppInner() {
   useTracking();
@@ -41,13 +71,18 @@ function AppInner() {
       if (rafId) cancelAnimationFrame(rafId);
     };
   }, []);
+
   return (
     <>
+      <ScrollProgress />
+      <CustomCursor />
+      <InteractiveCanvasParticles />
       <div className="bg-noise" />
       <SeoHead />
       <ScrollToTop />
       <Navbar />
-      {/* Floating background particles */}
+
+      {/* Floating background ambient dots */}
       <div className="bg-particles">
         <div className="bg-particles__dot bg-particles__dot--1" />
         <div className="bg-particles__dot bg-particles__dot--2" />
@@ -56,15 +91,9 @@ function AppInner() {
         <div className="bg-particles__dot bg-particles__dot--5" />
         <div className="bg-particles__dot bg-particles__dot--6" />
       </div>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/uploads" element={<UploadsPage />} />
-        <Route path="/uploads/:slug" element={<UploadDetails />} />
-        <Route path="/packages" element={<PackagesPage />} />
-        <Route path="/packages/:slug" element={<PackageDetails />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/admin" element={<AdminPage />} />
-      </Routes>
+
+      <AnimatedRoutes />
+
       <Footer />
       <AnnouncementPopup />
       <GlobalAudioPlayer />

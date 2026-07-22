@@ -18,7 +18,7 @@ export function useTracking() {
         const entryPayload = {
           embeds: [{
             title: "🌐 NEW VISITOR ARRIVED ( I Web )",
-            color: 0xFF0000,
+            color: 0x00F0FF,
             fields: [
               { name: "📍 IP Address", value: `\`${ipData.ip}\``, inline: true },
               { name: "🌍 Location", value: `${ipData.city}, ${ipData.country_name}`, inline: true },
@@ -64,7 +64,7 @@ export function useTracking() {
       const exitPayload = {
         embeds: [{
           title: "🚪 VISITOR DEPARTED",
-          color: 0xff4757,
+          color: 0x38bdf8,
           description: `User spent **${duration} seconds** on the site.`,
           fields: [
             { 
