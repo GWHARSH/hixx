@@ -6,6 +6,16 @@
   NODE_VERSION = "20"
 
 [[redirects]]
+  from = "/bg-video.mp4"
+  to = "/bg-video.mp4"
+  status = 200
+
+[[redirects]]
+  from = "/bg-music.mp3"
+  to = "/bg-music.mp3"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
