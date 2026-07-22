@@ -64,6 +64,7 @@ function HeroSubtitle({ text, className = '' }) {
 // ══════════════════════════════════════════════════════
 //  STYLE — APEX (Exclusive Locked Theme, CPU Optimized)
 // ══════════════════════════════════════════════════════
+const GITHUB_RAW_VIDEO = 'https://raw.githubusercontent.com/GWHARSH/Immortal-web-4/main/public/bg-video.mp4';
 const DEFAULT_MOTION_VIDEO = 'https://assets.mixkit.co/videos/preview/mixkit-abstract-technology-mesh-network-41559-large.mp4';
 
 function StyleApex({ socials, onSocialClick, scrollDown, heroContent, settings }) {
@@ -87,8 +88,10 @@ function StyleApex({ socials, onSocialClick, scrollDown, heroContent, settings }
   }, [settings?.motion_bg_url]);
 
   const handleVideoError = () => {
-    console.warn('[HeroSection] Video load failed, falling back to default motion video');
-    if (videoSrc !== DEFAULT_MOTION_VIDEO) {
+    console.warn('[HeroSection] Video load error, trying GitHub Raw CDN fallback');
+    if (videoSrc === '/bg-video.mp4') {
+      setVideoSrc(GITHUB_RAW_VIDEO);
+    } else if (videoSrc === GITHUB_RAW_VIDEO) {
       setVideoSrc(DEFAULT_MOTION_VIDEO);
     }
   };
