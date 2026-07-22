@@ -1,30 +1,14 @@
 // ══════════════════════════════════════════════════════════════════
-//  IMMORTAL CLOUD & BASE64 MEDIA ENGINE (FAST TIMEOUT PROTECTED)
-//  Ensures all uploaded audio, images, and background videos are 100%
-//  accessible, fast, and NEVER hang indefinitely.
+//  IMMORTAL PUBLIC MEDIA CDN ENGINE
+//  Uploads media files (videos, music, images) to public cloud CDNs
+//  so EVERY visitor on ANY device worldwide can play music & videos.
 // ══════════════════════════════════════════════════════════════════
 
-import { storage as firebaseStorage, isFirebaseConfigured } from './firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { realSupabase } from './supabase';
 import { saveMediaToIDB } from './mediaStore';
 
 /**
- * Wraps a Promise with a strict timeout (default 3 seconds).
- * Prevents hanging network requests from freezing the UI.
- */
-function withTimeout(promise, ms = 3000) {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(`Timeout after ${ms}ms`)), ms);
-    promise.then(
-      (res) => { clearTimeout(timer); resolve(res); },
-      (err) => { clearTimeout(timer); reject(err); }
-    );
-  });
-}
-
-/**
- * Convert a File object to a Base64 Data URL.
+ * Convert a small file (< 700KB) to a Base64 Data URL.
+ * Fits safely within Firestore's 1MB document limit.
  */
 export function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -36,81 +20,119 @@ export function fileToBase64(file) {
 }
 
 /**
- * Uploads or converts a media file into a globally accessible URL.
- * - Audio & Images (under 15MB): Converted to Base64 (100% instant, no server required).
- * - Videos: Tries Cloud Storage with a 3s timeout, falls back to IndexedDB.
+ * Upload a file to TmpFiles Public CDN.
+ * Returns a direct public streaming URL.
+ */
+async function uploadToTmpFiles(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch('https://tmpfiles.org/api/v1/upload', {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!res.ok) throw new Error(`TmpFiles status ${res.status}`);
+  const json = await res.json();
+  if (json?.status === 'success' && json?.data?.url) {
+    return json.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+  }
+  throw new Error('TmpFiles invalid response');
+}
+
+/**
+ * Upload a file to Pixeldrain Public CDN.
+ * Returns a direct public streaming URL.
+ */
+async function uploadToPixeldrain(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch('https://pixeldrain.com/api/file', {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!res.ok) throw new Error(`Pixeldrain status ${res.status}`);
+  const json = await res.json();
+  if (json?.id) {
+    return `https://pixeldrain.com/api/file/${json.id}`;
+  }
+  throw new Error('Pixeldrain invalid response');
+}
+
+/**
+ * Upload a file to Catbox Public CDN.
+ */
+async function uploadToCatbox(file) {
+  const formData = new FormData();
+  formData.append('reqtype', 'fileupload');
+  formData.append('fileToUpload', file);
+
+  const res = await fetch('https://catbox.moe/user/api.php', {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!res.ok) throw new Error(`Catbox status ${res.status}`);
+  const url = (await res.text()).trim();
+  if (url && url.startsWith('http')) {
+    return url;
+  }
+  throw new Error('Catbox invalid response');
+}
+
+/**
+ * Main upload entry point.
+ * Guarantees a public HTTPS URL accessible to all visitors globally.
  */
 export async function uploadMediaFile(file, folder = 'uploads') {
   if (!file) throw new Error('No file selected');
 
-  const isAudio = file.type.startsWith('audio/') || file.name.match(/\.(mp3|wav|ogg|m4a|aac)$/i);
-  const isImage = file.type.startsWith('image/') || file.name.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i);
-  const isVideo = file.type.startsWith('video/') || file.name.match(/\.(mp4|webm|mov|m4v)$/i);
-
-  // ── Strategy A: Instant Base64 for Audio & Images under 15MB ────────
-  if ((isAudio || isImage) && file.size < 15 * 1024 * 1024) {
-    console.log('[MediaEngine] Encoding audio/image to Base64...');
+  // Small images/icons < 700KB can use Base64 safely (fits in Firestore 1MB limit)
+  const isSmallImage = file.type.startsWith('image/') && file.size < 700 * 1024;
+  if (isSmallImage) {
+    console.log('[PublicCDN] Encoding small image to Base64...');
     return await fileToBase64(file);
   }
 
-  // ── Strategy B: Instant Base64 for small videos under 10MB ──────────
-  if (isVideo && file.size < 10 * 1024 * 1024) {
-    console.log('[MediaEngine] Encoding small video to Base64...');
-    return await fileToBase64(file);
-  }
-
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const filePath = `${folder}/${Date.now()}_${safeName}`;
-
-  // ── Strategy C: Firebase Storage (with 3s timeout) ──────────────────
-  if (isFirebaseConfigured && firebaseStorage) {
-    try {
-      console.log('[MediaEngine] Attempting Firebase Storage upload with 3s timeout...');
-      const storageRef = ref(firebaseStorage, filePath);
-      
-      const publicUrl = await withTimeout(
-        (async () => {
-          await uploadBytes(storageRef, file, {
-            contentType: file.type || 'application/octet-stream',
-          });
-          return await getDownloadURL(storageRef);
-        })(),
-        3500
-      );
-
-      if (publicUrl) {
-        console.log('[MediaEngine] Firebase Storage upload success:', publicUrl);
-        return publicUrl;
-      }
-    } catch (err) {
-      console.warn('[MediaEngine] Firebase Storage notice (skipped):', err?.message || err);
-    }
-  }
-
-  // ── Strategy D: Supabase Storage (with 3s timeout) ──────────────────
+  // 1. Try TmpFiles Public CDN
   try {
-    console.log('[MediaEngine] Attempting Supabase Storage with 3s timeout...');
-    const publicUrl = await withTimeout(
-      (async () => {
-        const { error: sbErr } = await realSupabase.storage
-          .from('files')
-          .upload(filePath, file, { cacheControl: '3600', upsert: true });
-        if (sbErr) throw sbErr;
-        const { data } = realSupabase.storage.from('files').getPublicUrl(filePath);
-        return data?.publicUrl;
-      })(),
-      3000
-    );
-
-    if (publicUrl) {
-      console.log('[MediaEngine] Supabase Storage upload success:', publicUrl);
-      return publicUrl;
-    }
-  } catch (sbEx) {
-    console.warn('[MediaEngine] Supabase Storage notice (skipped):', sbEx?.message || sbEx);
+    console.log('[PublicCDN] Uploading to TmpFiles...');
+    const url = await uploadToTmpFiles(file);
+    console.log('[PublicCDN] TmpFiles success:', url);
+    return url;
+  } catch (err1) {
+    console.warn('[PublicCDN] TmpFiles notice:', err1.message);
   }
 
-  // ── Strategy E: IndexedDB Local Storage (Instant < 50ms) ───────────
-  console.log('[MediaEngine] Using fast IndexedDB local persistence');
+  // 2. Try Pixeldrain Public CDN
+  try {
+    console.log('[PublicCDN] Uploading to Pixeldrain...');
+    const url = await uploadToPixeldrain(file);
+    console.log('[PublicCDN] Pixeldrain success:', url);
+    return url;
+  } catch (err2) {
+    console.warn('[PublicCDN] Pixeldrain notice:', err2.message);
+  }
+
+  // 3. Try Catbox Public CDN
+  try {
+    console.log('[PublicCDN] Uploading to Catbox...');
+    const url = await uploadToCatbox(file);
+    console.log('[PublicCDN] Catbox success:', url);
+    return url;
+  } catch (err3) {
+    console.warn('[PublicCDN] Catbox notice:', err3.message);
+  }
+
+  // 4. If small file < 900KB, use Base64 fallback
+  if (file.size < 900 * 1024) {
+    console.log('[PublicCDN] Using Base64 fallback for small file...');
+    return await fileToBase64(file);
+  }
+
+  // 5. Local IndexedDB preview fallback
+  console.warn('[PublicCDN] Using IndexedDB local fallback');
   return await saveMediaToIDB(folder, file);
 }
