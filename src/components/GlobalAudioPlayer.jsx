@@ -25,9 +25,11 @@ export default function GlobalAudioPlayer() {
     }
   }, [volume]);
 
-  // Handle source errors by falling back to default /bg-music.mp3
   const handleAudioError = () => {
-    console.warn('[AudioPlayer] Audio playback warning or source change');
+    console.warn('[AudioPlayer] Audio playback warning or source change, using fallback');
+    if (audioSource !== '/bg-music.mp3') {
+      setAudioSource('/bg-music.mp3');
+    }
   };
 
   const toggleMusic = async () => {
@@ -39,6 +41,19 @@ export default function GlobalAudioPlayer() {
         setIsPlaying(true);
       } catch (err) {
         console.warn('[AudioPlayer] Playback blocked or failed:', err);
+        if (audioSource !== '/bg-music.mp3') {
+          setAudioSource('/bg-music.mp3');
+          setTimeout(async () => {
+            try {
+              if (audioRef.current) {
+                await audioRef.current.play();
+                setIsPlaying(true);
+              }
+            } catch (fallbackErr) {
+              console.error('[AudioPlayer] Fallback play error:', fallbackErr);
+            }
+          }, 100);
+        }
       }
     } else {
       audioRef.current.pause();
@@ -51,16 +66,11 @@ export default function GlobalAudioPlayer() {
       <audio
         key={audioSource}
         ref={audioRef}
+        src={audioSource}
         loop
         preload="auto"
         onError={handleAudioError}
-      >
-        {audioSource && audioSource !== '/bg-music.mp3' ? (
-          <source src={audioSource} type="audio/mpeg" />
-        ) : null}
-        <source src="/bg-music.mp3" type="audio/mpeg" />
-        <source src="/bg-music.mp3.mp3" type="audio/mpeg" />
-      </audio>
+      />
       <div className="music-toggle__controls">
         <button
           className={`music-toggle__btn ${isPlaying ? 'music-toggle__btn--playing' : ''}`}

@@ -87,7 +87,10 @@ function StyleApex({ socials, onSocialClick, scrollDown, heroContent, settings }
   }, [settings?.motion_bg_url]);
 
   const handleVideoError = () => {
-    console.warn('[HeroSection] Video playback error, using fallback');
+    console.warn('[HeroSection] Video load failed, falling back to default motion video');
+    if (videoSrc !== DEFAULT_MOTION_VIDEO) {
+      setVideoSrc(DEFAULT_MOTION_VIDEO);
+    }
   };
 
   return (
@@ -95,6 +98,7 @@ function StyleApex({ socials, onSocialClick, scrollDown, heroContent, settings }
       {isVideoMode ? (
         <video
           key={videoSrc}
+          src={videoSrc}
           autoPlay
           loop
           muted
@@ -102,14 +106,7 @@ function StyleApex({ socials, onSocialClick, scrollDown, heroContent, settings }
           onError={handleVideoError}
           className="hs__bg-img hs__bg-video"
           style={{ opacity: bgOpacity }}
-        >
-          {videoSrc && videoSrc !== '/bg-video.mp4' ? (
-            <source src={videoSrc} type="video/mp4" />
-          ) : null}
-          <source src="/bg-video.mp4" type="video/mp4" />
-          <source src="/bg-video.mp4.mp4" type="video/mp4" />
-          <source src={DEFAULT_MOTION_VIDEO} type="video/mp4" />
-        </video>
+        />
       ) : (
         <img
           src={forceHttps(settings?.custom_banner_url || settings?.motion_bg_url) || heroImg}
