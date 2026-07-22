@@ -80,7 +80,7 @@ function StyleApex({ socials, onSocialClick, scrollDown, heroContent, settings }
     }
     return isDesktop || performanceTier === 'high' ? '/bg-video.mp4' : '/bg-video-mobile.mp4';
   });
-  const bgOpacity = settings?.motion_bg_opacity ? Number(settings.motion_bg_opacity) : 0.45;
+  const bgOpacity = settings?.motion_bg_opacity ? Number(settings.motion_bg_opacity) : 0.72;
 
   useEffect(() => {
     const isDesktop = typeof window !== 'undefined' && window.innerWidth > 768;
@@ -113,7 +113,10 @@ function StyleApex({ socials, onSocialClick, scrollDown, heroContent, settings }
           playsInline
           onError={handleVideoError}
           className="hs__bg-img hs__bg-video"
-          style={{ opacity: bgOpacity }}
+          style={{
+            opacity: bgOpacity,
+            filter: 'brightness(1.15) contrast(1.06)',
+          }}
         />
       ) : (
         <img
