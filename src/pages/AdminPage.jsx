@@ -122,84 +122,85 @@ export default function AdminPage() {
   const handleFileUpload = async (e, fieldName) => {
     const file = e.target.files[0];
     if (!file) return;
-    
+
     setUploadingField(fieldName);
-    
+
+    const isAudio = file.type.startsWith('audio/');
+    const isVideo = file.type.startsWith('video/') || file.name.match(/\.(mp4|webm|mov|gif)$/i);
+
     try {
       let finalValue = '';
-      
-      // Try uploading to Supabase storage bucket first
+
+      // ── Step 1: Always try Supabase Storage first ──────────────────
       try {
         const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
         const filePath = `uploads/${Date.now()}_${safeName}`;
-        
+
         const { error: uploadError } = await supabase.storage.from('files').upload(filePath, file, {
           cacheControl: '3600',
-          upsert: true
+          upsert: true,
         });
-        
+
         if (!uploadError) {
           const { data } = supabase.storage.from('files').getPublicUrl(filePath);
           if (data?.publicUrl) {
             finalValue = data.publicUrl;
           }
+        } else {
+          console.warn('Supabase storage error:', uploadError.message);
         }
       } catch (storageErr) {
-        console.warn('Supabase storage upload notice:', storageErr);
+        console.warn('Supabase storage exception:', storageErr);
       }
 
-      // Resilient fallback for large video files or network storage issues
+      // ── Step 2: If Supabase upload failed, use base64 (persistent) ─
+      // base64 is stored in DB and survives all refreshes.
+      // For audio this is always fast. For video only attempt if < 20MB.
       if (!finalValue) {
-        if (file.type.startsWith('video/') || file.size > 5 * 1024 * 1024) {
-          // Create immediate Blob URL for smooth 60fps video stream
-          finalValue = URL.createObjectURL(file);
-          
-          // Also encode to Data URL if file is under 15MB for persistent storage
-          if (file.size < 15 * 1024 * 1024) {
-            try {
-              const reader = new FileReader();
-              reader.onload = (event) => {
-                const base64Url = event.target.result;
-                try {
-                  setSettingsData(prev => {
-                    const updated = { ...prev, [fieldName]: base64Url };
-                    localStorage.setItem('cached_settings', JSON.stringify(updated));
-                    return updated;
-                  });
-                } catch (err) {
-                  console.warn('LocalStorage limit notice for video', err);
-                }
-              };
-              reader.readAsDataURL(file);
-            } catch (e) {}
-          }
-        } else {
-          // Standard image/audio base64 conversion fallback
-          finalValue = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result);
-            reader.readAsDataURL(file);
-          });
+        if (isVideo && file.size > 20 * 1024 * 1024) {
+          // Video too large for base64 and Supabase failed — show real error
+          show('Video upload failed: file too large for storage. Try a smaller file or check your Supabase storage bucket.', 'error');
+          setUploadingField(null);
+          return;
         }
+
+        // Encode to base64 Data URL — survives page refresh permanently
+        finalValue = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
       }
 
-      setSettingsData(prev => {
-        const updated = { ...prev, [fieldName]: finalValue };
-        localStorage.setItem('cached_settings', JSON.stringify(updated));
-        return updated;
-      });
-      
-      show('Media file uploaded successfully!', 'success');
+      // ── Step 3: Update state + save to DB immediately ──────────────
+      const updatedSettings = { ...settingsData, [fieldName]: finalValue };
+      setSettingsData(updatedSettings);
+
+      // Save to Supabase DB right away (not just localStorage)
+      try {
+        const { error: saveError } = await supabase
+          .from('settings')
+          .upsert([{ id: 1, ...updatedSettings }]);
+
+        if (saveError) {
+          // DB save failed — still cache locally so current session works
+          localStorage.setItem('cached_settings', JSON.stringify(updatedSettings));
+          show('Uploaded but DB save failed — click Save Settings to persist.', 'warning');
+        } else {
+          localStorage.setItem('cached_settings', JSON.stringify(updatedSettings));
+          show(isAudio ? 'Music saved!' : 'Background video saved!', 'success');
+          await refreshSettings();
+        }
+      } catch (dbErr) {
+        localStorage.setItem('cached_settings', JSON.stringify(updatedSettings));
+        show('Uploaded locally — click Save Settings to persist.', 'warning');
+      }
+
       setUploadingField(null);
     } catch (err) {
-      console.error('Detailed Upload Notice:', err);
-      const fallbackUrl = URL.createObjectURL(file);
-      setSettingsData(prev => {
-        const updated = { ...prev, [fieldName]: fallbackUrl };
-        localStorage.setItem('cached_settings', JSON.stringify(updated));
-        return updated;
-      });
-      show('Motion video loaded successfully!', 'success');
+      console.error('File upload error:', err);
+      show('Upload failed: ' + err.message, 'error');
       setUploadingField(null);
     }
   };
