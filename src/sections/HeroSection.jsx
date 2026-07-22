@@ -69,23 +69,25 @@ const DEFAULT_MOTION_VIDEO = 'https://assets.mixkit.co/videos/preview/mixkit-abs
 function StyleApex({ socials, onSocialClick, scrollDown, heroContent, settings }) {
   const isVideoMode = (settings?.motion_bg_type || 'video') === 'video';
   const [videoSrc, setVideoSrc] = useState(() => {
-    return settings?.motion_bg_url ? forceHttps(settings.motion_bg_url) : DEFAULT_MOTION_VIDEO;
+    const dbUrl = settings?.motion_bg_url;
+    if (dbUrl && dbUrl.startsWith('http') && !dbUrl.includes('idb://') && !dbUrl.includes('firestore_media://')) {
+      return forceHttps(dbUrl);
+    }
+    return '/bg-video.mp4';
   });
   const bgOpacity = settings?.motion_bg_opacity ? Number(settings.motion_bg_opacity) : 0.45;
 
   useEffect(() => {
-    if (settings?.motion_bg_url) {
-      setVideoSrc(forceHttps(settings.motion_bg_url));
+    const dbUrl = settings?.motion_bg_url;
+    if (dbUrl && dbUrl.startsWith('http') && !dbUrl.includes('idb://') && !dbUrl.includes('firestore_media://')) {
+      setVideoSrc(forceHttps(dbUrl));
     } else {
-      setVideoSrc(DEFAULT_MOTION_VIDEO);
+      setVideoSrc('/bg-video.mp4');
     }
   }, [settings?.motion_bg_url]);
 
   const handleVideoError = () => {
-    console.warn('[HeroSection] Custom video failed to play, switching to default motion video loop');
-    if (videoSrc !== DEFAULT_MOTION_VIDEO) {
-      setVideoSrc(DEFAULT_MOTION_VIDEO);
-    }
+    console.warn('[HeroSection] Video playback error, using fallback');
   };
 
   return (
@@ -93,7 +95,6 @@ function StyleApex({ socials, onSocialClick, scrollDown, heroContent, settings }
       {isVideoMode ? (
         <video
           key={videoSrc}
-          src={videoSrc}
           autoPlay
           loop
           muted
@@ -101,7 +102,14 @@ function StyleApex({ socials, onSocialClick, scrollDown, heroContent, settings }
           onError={handleVideoError}
           className="hs__bg-img hs__bg-video"
           style={{ opacity: bgOpacity }}
-        />
+        >
+          {videoSrc && videoSrc !== '/bg-video.mp4' ? (
+            <source src={videoSrc} type="video/mp4" />
+          ) : null}
+          <source src="/bg-video.mp4" type="video/mp4" />
+          <source src="/bg-video.mp4.mp4" type="video/mp4" />
+          <source src={DEFAULT_MOTION_VIDEO} type="video/mp4" />
+        </video>
       ) : (
         <img
           src={forceHttps(settings?.custom_banner_url || settings?.motion_bg_url) || heroImg}

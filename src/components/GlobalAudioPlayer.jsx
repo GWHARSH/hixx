@@ -11,8 +11,9 @@ export default function GlobalAudioPlayer() {
 
   // Update audio source when settings change
   useEffect(() => {
-    if (settings?.bg_music_url) {
-      setAudioSource(settings.bg_music_url);
+    const dbUrl = settings?.bg_music_url;
+    if (dbUrl && dbUrl.startsWith('http') && !dbUrl.includes('idb://') && !dbUrl.includes('firestore_media://')) {
+      setAudioSource(dbUrl);
     } else {
       setAudioSource('/bg-music.mp3');
     }
@@ -26,10 +27,7 @@ export default function GlobalAudioPlayer() {
 
   // Handle source errors by falling back to default /bg-music.mp3
   const handleAudioError = () => {
-    console.warn('[AudioPlayer] Primary audio source failed, falling back to default music');
-    if (audioSource !== '/bg-music.mp3') {
-      setAudioSource('/bg-music.mp3');
-    }
+    console.warn('[AudioPlayer] Audio playback warning or source change');
   };
 
   const toggleMusic = async () => {
@@ -41,20 +39,6 @@ export default function GlobalAudioPlayer() {
         setIsPlaying(true);
       } catch (err) {
         console.warn('[AudioPlayer] Playback blocked or failed:', err);
-        // Try fallback source if play failed
-        if (audioSource !== '/bg-music.mp3') {
-          setAudioSource('/bg-music.mp3');
-          setTimeout(async () => {
-            try {
-              if (audioRef.current) {
-                await audioRef.current.play();
-                setIsPlaying(true);
-              }
-            } catch (fallbackErr) {
-              console.error('[AudioPlayer] Fallback play error:', fallbackErr);
-            }
-          }, 200);
-        }
       }
     } else {
       audioRef.current.pause();
@@ -65,12 +49,18 @@ export default function GlobalAudioPlayer() {
   return (
     <div className="music-toggle" style={{ zIndex: 9999 }}>
       <audio
+        key={audioSource}
         ref={audioRef}
-        src={audioSource}
         loop
         preload="auto"
         onError={handleAudioError}
-      />
+      >
+        {audioSource && audioSource !== '/bg-music.mp3' ? (
+          <source src={audioSource} type="audio/mpeg" />
+        ) : null}
+        <source src="/bg-music.mp3" type="audio/mpeg" />
+        <source src="/bg-music.mp3.mp3" type="audio/mpeg" />
+      </audio>
       <div className="music-toggle__controls">
         <button
           className={`music-toggle__btn ${isPlaying ? 'music-toggle__btn--playing' : ''}`}
