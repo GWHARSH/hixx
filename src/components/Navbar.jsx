@@ -68,7 +68,7 @@ export default function Navbar() {
       setSecretError('');
       setMobileMagicInput('');
     } else {
-      setSecretError('Incorrect Magic Word. Try: PHEONIX');
+      setSecretError('Incorrect. Try again.');
     }
   };
 
@@ -468,7 +468,7 @@ export default function Navbar() {
                   <Sparkles size={16} className="input-group__icon" />
                   <input
                     type="text"
-                    placeholder="e.g. PHEONIX"
+                    placeholder="Enter magic word..."
                     value={mobileMagicInput}
                     data-allow-magic="true"
                     onChange={(e) => setMobileMagicInput(e.target.value)}

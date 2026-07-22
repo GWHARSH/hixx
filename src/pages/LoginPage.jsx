@@ -23,7 +23,7 @@ export default function LoginPage() {
       unlockSecret();
       setSecretError('');
     } else {
-      setSecretError('Incorrect Magic Word. Hint: PHEONIX');
+      setSecretError('Incorrect. Try again.');
     }
   };
 
@@ -77,7 +77,7 @@ export default function LoginPage() {
             <div className="login-card__header">
               <h1 style={{ fontSize: '1.6rem', marginBottom: '8px' }}>Restricted Access</h1>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                Type the magic word <strong style={{ color: 'var(--accent)' }}>"PHEONIX"</strong> anywhere on screen or enter it below to reveal login.
+                Type the magic word anywhere on screen or enter it below to reveal login.
               </p>
             </div>
 
@@ -86,7 +86,7 @@ export default function LoginPage() {
                 <Sparkles size={18} className="input-group__icon" />
                 <input
                   type="text"
-                  placeholder="Enter Magic Word (e.g. PHEONIX)"
+                  placeholder="Enter Magic Word"
                   value={secretInput}
                   data-allow-magic="true"
                   onChange={(e) => {
