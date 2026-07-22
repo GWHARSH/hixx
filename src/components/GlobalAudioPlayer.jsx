@@ -30,7 +30,6 @@ export default function GlobalAudioPlayer() {
   }, [settings?.bg_music_url]);
 
   const handleAudioError = () => {
-    console.warn('[AudioPlayer] Audio load error, trying GitHub Raw CDN fallback');
     if (audioSource === '/bg-music.mp3') {
       setAudioSource(GITHUB_RAW_AUDIO);
     }

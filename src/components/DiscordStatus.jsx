@@ -61,36 +61,15 @@ export default function DiscordStatus({ discordId }) {
         let japiBannerColor = null;
         try {
           const japiRes = await fetch(`https://japi.rest/discord/v1/user/${discordId}`);
-          const japiJson = await japiRes.json();
-          if (japiJson && japiJson.id) {
-            japiBannerUrl = japiJson.bannerURL || null;
-            japiBannerColor = japiJson.banner_color || null;
-          }
-        } catch (japiErr) {
-          console.error('JAPI fetch error:', japiErr);
-        }
-
-        // Robust fallback to Vendicated's API if JAPI lookup fails or is rate-limited
-        if (!japiBannerUrl) {
-          try {
-            const vendiRes = await fetch(`https://widgets.vendicated.dev/api/user/${discordId}`);
-            if (vendiRes.ok) {
-              const vendiJson = await vendiRes.json();
-              if (vendiJson && vendiJson.id) {
-                if (vendiJson.banner) {
-                  const isAnimated = vendiJson.banner.startsWith('a_');
-                  japiBannerUrl = `https://cdn.discordapp.com/banners/${discordId}/${vendiJson.banner}${isAnimated ? '.gif' : '.png'}?size=600`;
-                }
-                if (vendiJson.banner_color) {
-                  japiBannerColor = vendiJson.banner_color;
-                } else if (vendiJson.accent_color) {
-                  japiBannerColor = '#' + vendiJson.accent_color.toString(16).padStart(6, '0');
-                }
-              }
+          if (japiRes.ok) {
+            const japiJson = await japiRes.json();
+            if (japiJson && japiJson.id) {
+              japiBannerUrl = japiJson.bannerURL || null;
+              japiBannerColor = japiJson.banner_color || null;
             }
-          } catch (vendiErr) {
-            console.error('Vendicated fallback fetch error:', vendiErr);
           }
+        } catch (_) {
+          // Silent fallback if JAPI is unavailable
         }
 
         if (json.success) {
