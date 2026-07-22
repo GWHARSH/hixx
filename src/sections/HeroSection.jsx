@@ -64,19 +64,41 @@ function HeroSubtitle({ text, className = '' }) {
 // ══════════════════════════════════════════════════════
 //  STYLE — APEX (Exclusive Locked Theme, CPU Optimized)
 // ══════════════════════════════════════════════════════
+const DEFAULT_MOTION_VIDEO = 'https://assets.mixkit.co/videos/preview/mixkit-abstract-technology-mesh-network-41559-large.mp4';
+
 function StyleApex({ socials, onSocialClick, scrollDown, heroContent, settings }) {
-  const isVideoBg = (settings?.motion_bg_type || 'video') === 'video' && settings?.motion_bg_url;
+  const isVideoMode = (settings?.motion_bg_type || 'video') === 'video';
+  const [videoSrc, setVideoSrc] = useState(() => {
+    return settings?.motion_bg_url ? forceHttps(settings.motion_bg_url) : DEFAULT_MOTION_VIDEO;
+  });
   const bgOpacity = settings?.motion_bg_opacity ? Number(settings.motion_bg_opacity) : 0.45;
+
+  useEffect(() => {
+    if (settings?.motion_bg_url) {
+      setVideoSrc(forceHttps(settings.motion_bg_url));
+    } else {
+      setVideoSrc(DEFAULT_MOTION_VIDEO);
+    }
+  }, [settings?.motion_bg_url]);
+
+  const handleVideoError = () => {
+    console.warn('[HeroSection] Custom video failed to play, switching to default motion video loop');
+    if (videoSrc !== DEFAULT_MOTION_VIDEO) {
+      setVideoSrc(DEFAULT_MOTION_VIDEO);
+    }
+  };
 
   return (
     <div className="hs hs--apex">
-      {isVideoBg ? (
+      {isVideoMode ? (
         <video
-          src={forceHttps(settings.motion_bg_url)}
+          key={videoSrc}
+          src={videoSrc}
           autoPlay
           loop
           muted
           playsInline
+          onError={handleVideoError}
           className="hs__bg-img hs__bg-video"
           style={{ opacity: bgOpacity }}
         />

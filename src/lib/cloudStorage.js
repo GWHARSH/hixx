@@ -1,5 +1,5 @@
 // ══════════════════════════════════════════════════════════════════
-//  IMMORTAL PUBLIC MEDIA CDN ENGINE
+//  IMMORTAL PUBLIC MEDIA CDN ENGINE v3.0
 //  Uploads media files (videos, music, images) to public cloud CDNs
 //  so EVERY visitor on ANY device worldwide can play music & videos.
 // ══════════════════════════════════════════════════════════════════
@@ -7,7 +7,7 @@
 import { saveMediaToIDB } from './mediaStore';
 
 /**
- * Convert a small file (< 700KB) to a Base64 Data URL.
+ * Convert a small file (< 500KB) to a Base64 Data URL.
  * Fits safely within Firestore's 1MB document limit.
  */
 export function fileToBase64(file) {
@@ -20,8 +20,27 @@ export function fileToBase64(file) {
 }
 
 /**
+ * Upload a file to File.io Public CDN.
+ */
+async function uploadToFileIo(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch('https://file.io', {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!res.ok) throw new Error(`File.io status ${res.status}`);
+  const json = await res.json();
+  if (json?.success && json?.link) {
+    return json.link;
+  }
+  throw new Error('File.io upload failed');
+}
+
+/**
  * Upload a file to TmpFiles Public CDN.
- * Returns a direct public streaming URL.
  */
 async function uploadToTmpFiles(file) {
   const formData = new FormData();
@@ -37,12 +56,11 @@ async function uploadToTmpFiles(file) {
   if (json?.status === 'success' && json?.data?.url) {
     return json.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
   }
-  throw new Error('TmpFiles invalid response');
+  throw new Error('TmpFiles upload failed');
 }
 
 /**
  * Upload a file to Pixeldrain Public CDN.
- * Returns a direct public streaming URL.
  */
 async function uploadToPixeldrain(file) {
   const formData = new FormData();
@@ -58,28 +76,7 @@ async function uploadToPixeldrain(file) {
   if (json?.id) {
     return `https://pixeldrain.com/api/file/${json.id}`;
   }
-  throw new Error('Pixeldrain invalid response');
-}
-
-/**
- * Upload a file to Catbox Public CDN.
- */
-async function uploadToCatbox(file) {
-  const formData = new FormData();
-  formData.append('reqtype', 'fileupload');
-  formData.append('fileToUpload', file);
-
-  const res = await fetch('https://catbox.moe/user/api.php', {
-    method: 'POST',
-    body: formData,
-  });
-
-  if (!res.ok) throw new Error(`Catbox status ${res.status}`);
-  const url = (await res.text()).trim();
-  if (url && url.startsWith('http')) {
-    return url;
-  }
-  throw new Error('Catbox invalid response');
+  throw new Error('Pixeldrain upload failed');
 }
 
 /**
@@ -89,50 +86,43 @@ async function uploadToCatbox(file) {
 export async function uploadMediaFile(file, folder = 'uploads') {
   if (!file) throw new Error('No file selected');
 
-  // Small images/icons < 700KB can use Base64 safely (fits in Firestore 1MB limit)
-  const isSmallImage = file.type.startsWith('image/') && file.size < 700 * 1024;
-  if (isSmallImage) {
+  // Small icons/images < 500KB use Base64 (fits in Firestore 1MB limit)
+  if (file.type.startsWith('image/') && file.size < 500 * 1024) {
     console.log('[PublicCDN] Encoding small image to Base64...');
     return await fileToBase64(file);
   }
 
-  // 1. Try TmpFiles Public CDN
+  // 1. Try File.io Public CDN
+  try {
+    console.log('[PublicCDN] Uploading to File.io...');
+    const url = await uploadToFileIo(file);
+    console.log('[PublicCDN] File.io success:', url);
+    return url;
+  } catch (err1) {
+    console.warn('[PublicCDN] File.io notice:', err1.message);
+  }
+
+  // 2. Try TmpFiles Public CDN
   try {
     console.log('[PublicCDN] Uploading to TmpFiles...');
     const url = await uploadToTmpFiles(file);
     console.log('[PublicCDN] TmpFiles success:', url);
     return url;
-  } catch (err1) {
-    console.warn('[PublicCDN] TmpFiles notice:', err1.message);
+  } catch (err2) {
+    console.warn('[PublicCDN] TmpFiles notice:', err2.message);
   }
 
-  // 2. Try Pixeldrain Public CDN
+  // 3. Try Pixeldrain Public CDN
   try {
     console.log('[PublicCDN] Uploading to Pixeldrain...');
     const url = await uploadToPixeldrain(file);
     console.log('[PublicCDN] Pixeldrain success:', url);
     return url;
-  } catch (err2) {
-    console.warn('[PublicCDN] Pixeldrain notice:', err2.message);
-  }
-
-  // 3. Try Catbox Public CDN
-  try {
-    console.log('[PublicCDN] Uploading to Catbox...');
-    const url = await uploadToCatbox(file);
-    console.log('[PublicCDN] Catbox success:', url);
-    return url;
   } catch (err3) {
-    console.warn('[PublicCDN] Catbox notice:', err3.message);
+    console.warn('[PublicCDN] Pixeldrain notice:', err3.message);
   }
 
-  // 4. If small file < 900KB, use Base64 fallback
-  if (file.size < 900 * 1024) {
-    console.log('[PublicCDN] Using Base64 fallback for small file...');
-    return await fileToBase64(file);
-  }
-
-  // 5. Local IndexedDB preview fallback
+  // 4. Local IndexedDB preview fallback for current device
   console.warn('[PublicCDN] Using IndexedDB local fallback');
   return await saveMediaToIDB(folder, file);
 }
