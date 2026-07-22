@@ -120,6 +120,14 @@ export default function AdminPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const safeCacheSettings = (data) => {
+    try {
+      localStorage.setItem('cached_settings', JSON.stringify(data));
+    } catch (e) {
+      console.warn('LocalStorage limit notice:', e);
+    }
+  };
+
   const handleFileUpload = async (e, fieldName) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -128,9 +136,9 @@ export default function AdminPage() {
     const isAudio = file.type.startsWith('audio/');
 
     try {
-      show('Uploading file to cloud storage...', 'info');
+      show('Processing media upload...', 'info');
 
-      // Upload file to cloud storage (Firebase / Supabase / Catbox CDN)
+      // Upload or convert media file to universal public URL / Base64
       const publicUrl = await uploadMediaFile(file, fieldName);
 
       // Update state & save settings immediately
@@ -141,19 +149,19 @@ export default function AdminPage() {
         .from('settings')
         .upsert([{ id: 1, ...updatedSettings }]);
 
-      localStorage.setItem('cached_settings', JSON.stringify(updatedSettings));
+      safeCacheSettings(updatedSettings);
 
       if (saveError) {
         show('Uploaded & saved live!', 'success');
       } else {
-        show(isAudio ? 'Song uploaded & live for all visitors!' : 'Motion video uploaded & live for all visitors!', 'success');
+        show(isAudio ? 'Song saved & live for all visitors!' : 'Motion video saved & live for all visitors!', 'success');
       }
 
       await refreshSettings();
-      setUploadingField(null);
     } catch (err) {
       console.error('File upload error:', err);
-      show('Upload failed: ' + err.message, 'error');
+      show('Upload error: ' + (err?.message || 'Failed to process file'), 'error');
+    } finally {
       setUploadingField(null);
     }
   };
@@ -162,7 +170,7 @@ export default function AdminPage() {
     const targetData = customSettings || settingsData;
     
     // Always persist locally first so UI updates immediately
-    localStorage.setItem('cached_settings', JSON.stringify(targetData));
+    safeCacheSettings(targetData);
 
     try {
       const payload = { id: 1, ...targetData };
