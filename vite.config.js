@@ -1,6 +1,9 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import obfuscator from 'vite-plugin-javascript-obfuscator';
+
+// Detect Netlify / CI environment — skip obfuscation on build runners
+const isCI = Boolean(process.env.CI || process.env.NETLIFY);
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -183,14 +186,17 @@ function immortalBotShieldPlugin() {
 
 // ══════════════════════════════════════════════════════════════════
 export default defineConfig({
+  root: resolve(__dirname),
+  base: '/',
+  publicDir: resolve(__dirname, 'public'),
   plugins: [
     react(),
 
     // ── Bot shield runs FIRST (before static file serving) ──────
     immortalBotShieldPlugin(),
 
-    // ── JavaScript Obfuscation (build only, post React JSX transform) ──
-    obfuscator({
+    // ── JavaScript Obfuscation (local builds only, skipped on CI/Netlify) ──
+    ...(!isCI ? [obfuscator({
       enforce: 'post',
       apply: 'build',
       include: [/\.js$/, /\.jsx$/],
@@ -226,7 +232,7 @@ export default defineConfig({
         transformObjectKeys: false,
         unicodeEscapeSequence: false,
       },
-    }),
+    })] : []),
   ],
 
   server: {
@@ -236,6 +242,8 @@ export default defineConfig({
   },
 
   build: {
+    outDir: resolve(__dirname, 'dist'),
+    emptyOutDir: true,
     sourcemap: false,
     minify: 'terser',
     terserOptions: {
