@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Volume2, VolumeX } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
+import { useDevicePerformance } from '../hooks/useDevicePerformance';
 import { forceHttps } from '../utils/security';
 import heroImg from '/hero-f1.jpg';
 
@@ -69,25 +70,25 @@ const DEFAULT_MOTION_VIDEO = 'https://assets.mixkit.co/videos/preview/mixkit-abs
 
 function StyleApex({ socials, onSocialClick, scrollDown, heroContent, settings }) {
   const isVideoMode = (settings?.motion_bg_type || 'video') === 'video';
+  const performanceTier = useDevicePerformance();
+
   const [videoSrc, setVideoSrc] = useState(() => {
-    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
     const dbUrl = settings?.motion_bg_url;
     if (dbUrl && dbUrl.startsWith('http') && !dbUrl.includes('idb://') && !dbUrl.includes('firestore_media://')) {
       return forceHttps(dbUrl);
     }
-    return isMobile ? '/bg-video-mobile.mp4' : '/bg-video.mp4';
+    return performanceTier === 'high' ? '/bg-video.mp4' : '/bg-video-mobile.mp4';
   });
   const bgOpacity = settings?.motion_bg_opacity ? Number(settings.motion_bg_opacity) : 0.45;
 
   useEffect(() => {
-    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
     const dbUrl = settings?.motion_bg_url;
     if (dbUrl && dbUrl.startsWith('http') && !dbUrl.includes('idb://') && !dbUrl.includes('firestore_media://')) {
       setVideoSrc(forceHttps(dbUrl));
     } else {
-      setVideoSrc(isMobile ? '/bg-video-mobile.mp4' : '/bg-video.mp4');
+      setVideoSrc(performanceTier === 'high' ? '/bg-video.mp4' : '/bg-video-mobile.mp4');
     }
-  }, [settings?.motion_bg_url]);
+  }, [settings?.motion_bg_url, performanceTier]);
 
   const handleVideoError = () => {
     console.warn('[HeroSection] Video load error, trying fallback');

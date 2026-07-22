@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
+import { useDevicePerformance } from '../hooks/useDevicePerformance';
 
 export default function InteractiveCanvasParticles() {
   const canvasRef = useRef(null);
+  const tier = useDevicePerformance();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -38,8 +40,8 @@ export default function InteractiveCanvasParticles() {
       mouse.isMoving = true;
       mouse.lastMoveTime = Date.now();
 
-      // Emit trailing cyan/blue sparkles on cursor move
-      if (Math.random() < 0.45) {
+      // Emit trailing cyan/blue sparkles on cursor move (high tier only)
+      if (tier === 'high' && Math.random() < 0.45) {
         trailParticles.push({
           x: e.clientX + (Math.random() - 0.5) * 8,
           y: e.clientY + (Math.random() - 0.5) * 8,
@@ -53,13 +55,15 @@ export default function InteractiveCanvasParticles() {
     };
 
     const handleClick = (e) => {
-      shockwaves.push({
-        x: e.clientX,
-        y: e.clientY,
-        radius: 10,
-        maxRadius: 200,
-        alpha: 0.85,
-      });
+      if (tier !== 'low') {
+        shockwaves.push({
+          x: e.clientX,
+          y: e.clientY,
+          radius: 10,
+          maxRadius: 200,
+          alpha: 0.85,
+        });
+      }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -68,10 +72,14 @@ export default function InteractiveCanvasParticles() {
     let dots = [];
 
     const initDots = () => {
-      const isMobile = width <= 768;
-      const density = isMobile
-        ? Math.min(Math.floor((width * height) / 25000), 32)
-        : Math.min(Math.floor((width * height) / 13000), 85);
+      let density = 85;
+      if (tier === 'low') {
+        density = Math.min(Math.floor((width * height) / 30000), 25);
+      } else if (tier === 'medium') {
+        density = Math.min(Math.floor((width * height) / 18000), 45);
+      } else {
+        density = Math.min(Math.floor((width * height) / 12000), 85);
+      }
       dots = [];
 
       for (let i = 0; i < density; i++) {
